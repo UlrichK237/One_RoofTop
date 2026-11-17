@@ -1,0 +1,1 @@
+One Rooftop : Structure = ascension verticale par étages | Palette = nuit chaude, ivoire, or | Typographie = Jost et Cormorant Garamond | Signature = façade en traits d'or et ascenseur | Menu = registre à filets | Mouvement = tracé de traits
