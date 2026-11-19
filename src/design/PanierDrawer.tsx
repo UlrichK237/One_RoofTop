@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, Copy, ExternalLink, Minus, Phone, Plus, Trash2 } from 'lucide-react';
+import { CONFIRME } from '../data/confirmations';
 import { restaurantData } from '../data/restaurantData';
 import { TEXTES_SITE, type Langue } from '../data/textesSite';
 import {
@@ -46,7 +47,9 @@ export function PanierDrawer({
 }) {
   const t = TEXTES_SITE[langue].panier;
   const tr = TEXTES_SITE[langue].reservation;
-  const [mode, setMode] = useState<ModeRetrait>('emporter');
+  const [mode, setMode] = useState<ModeRetrait>(
+    CONFIRME.venteAEmporter ? 'emporter' : 'livraison',
+  );
   const [nomClient, setNomClient] = useState('');
   const [telephone, setTelephone] = useState('');
   const [adresse, setAdresse] = useState('');
@@ -125,7 +128,6 @@ export function PanierDrawer({
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Liste des articles avec miniature photo */}
           <ul className="divide-bronze border-t border-b border-bronze">
             {lignes.map((ligne) => {
               const cle = cleLignePanier(ligne.id, ligne.options, ligne.remarque);
@@ -133,7 +135,6 @@ export function PanierDrawer({
 
               return (
                 <li key={cle} className="py-3.5 flex items-start gap-3">
-                  {/* Emplacement miniature 56x56 retrouvé par catégorie::nom */}
                   <div className="w-14 h-14 shrink-0 border border-bronze bg-nuit flex items-center justify-center overflow-hidden">
                     {photo ? (
                       <img
@@ -224,45 +225,48 @@ export function PanierDrawer({
             </span>
           </div>
 
-          {/* Formulaire de commande */}
           <form onSubmit={preparerCommande} className="space-y-4">
             <div className="space-y-2">
               <p className="font-display text-xs uppercase tracking-[0.14em] text-ivoire">
                 {t.modeRetrait}
               </p>
               <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('emporter');
-                    setMessagePret(null);
-                  }}
-                  aria-pressed={mode === 'emporter'}
-                  className={`focus-marque py-2.5 px-3 border text-xs uppercase tracking-[0.12em] cursor-pointer min-h-[44px] ${
-                    mode === 'emporter'
-                      ? 'bg-or text-nuit border-or font-medium'
-                      : 'bg-nuit border-bronze text-ivoire'
-                  }`}
-                >
-                  {t.emporter}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('livraison');
-                    setMessagePret(null);
-                  }}
-                  aria-pressed={mode === 'livraison'}
-                  className={`focus-marque py-2.5 px-3 border text-xs uppercase tracking-[0.12em] cursor-pointer min-h-[44px] ${
-                    mode === 'livraison'
-                      ? 'bg-or text-nuit border-or font-medium'
-                      : 'bg-nuit border-bronze text-ivoire'
-                  }`}
-                >
-                  {t.livraison}
-                </button>
+                {CONFIRME.venteAEmporter && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('emporter');
+                      setMessagePret(null);
+                    }}
+                    aria-pressed={mode === 'emporter'}
+                    className={`focus-marque py-2.5 px-3 border text-xs uppercase tracking-[0.12em] cursor-pointer min-h-[44px] ${
+                      mode === 'emporter'
+                        ? 'bg-or text-nuit border-or font-medium'
+                        : 'bg-nuit border-bronze text-ivoire'
+                    }`}
+                  >
+                    {t.emporter}
+                  </button>
+                )}
+                {CONFIRME.livraison && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('livraison');
+                      setMessagePret(null);
+                    }}
+                    aria-pressed={mode === 'livraison'}
+                    className={`focus-marque py-2.5 px-3 border text-xs uppercase tracking-[0.12em] cursor-pointer min-h-[44px] ${
+                      mode === 'livraison'
+                        ? 'bg-or text-nuit border-or font-medium'
+                        : 'bg-nuit border-bronze text-ivoire'
+                    }`}
+                  >
+                    {t.livraison}
+                  </button>
+                )}
               </div>
-              {mode === 'livraison' && (
+              {CONFIRME.livraison && mode === 'livraison' && (
                 <p className="font-editorial italic text-base text-ivoire-doux pt-1">
                   {t.infoLivraison}
                 </p>

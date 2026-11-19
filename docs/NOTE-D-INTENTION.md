@@ -23,6 +23,15 @@ Les informations du restaurant, les horaires et l’intégralité de la carte so
 2. Transmettre les photographies officielles de la façade, du jacaranda lumineux, de la salle et des plats.
 3. Valider la liste des corrections typographiques relevées sur l’édition imprimée actuelle et transmettre les éventuelles pages manquantes (entre *Tuna Truffle* et *Red Dragon Roll*).
 
+## Les mouvements du site
+
+Le site suit le principe architectural d’une montée d’étage en étage grâce à des animations légères, sans aucune bibliothèque externe :
+
+- **Allumage de l’accueil** : la façade et la grille géométrique du logo se tracent dès l’ouverture (sautables au clic ou par touche), suivies d’une lueur discrète guidée par le pointeur.
+- **Ascenseur et portes d’étages** : un repère vertical suit la progression du visiteur dans la marge sur grand écran, ou se replie en pastille compacte avec anneau sur tablette et mobile pour ne jamais gêner la lecture. Des portes en filets de bronze s’écartent entre les étages au défilement.
+- **Scènes dessinées et carte vivante** : chaque étage affiche une scène vectorielle dédiée (bar, grillades, cave, soirées, sommet) qui se met automatiquement en pause hors écran, prête à accueillir les photographies officielles du lieu avec un lent zoom cinématographique dès qu’elles seront déposées. Les onglets de la carte soulignent leur sélection en continu et les boutons principaux réagissent discrètement au pointeur et au toucher.
+- **Maîtrise totale par le visiteur** : les préférences système de réduction des mouvements sont respectées automatiquement, et un bouton en pied de page permet de passer des mouvements complets aux mouvements réduits ou de les couper entièrement.
+
 ## Sécurité et confidentialité
 
 Le site fonctionne sans cookies publicitaires, sans suivi statistique et sans appel à des serveurs tiers pour les polices ou les images. Aucune donnée personnelle (nom, téléphone, adresse) n’est enregistrée : seul le panier de sélection est gardé dans le navigateur pendant 24 heures. Des en-têtes de sécurité stricts bloquent l’intégration du site dans des cadres externes et protègent les saisies contre toute injection.

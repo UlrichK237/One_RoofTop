@@ -10,6 +10,7 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "verif": "node scripts/verif-securite.mjs",
+    "verif:animations": "node scripts/verif-animations.mjs",
     "test": "node scripts/test-securite.mjs"
   },
   "dependencies": {

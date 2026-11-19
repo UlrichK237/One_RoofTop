@@ -1,2 +1,4 @@
 @import "tailwindcss";
 @import "./design/theme.css";
+@import "./design/motion/motion.css";
+

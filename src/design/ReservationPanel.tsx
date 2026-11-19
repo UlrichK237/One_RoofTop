@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Check, Copy, ExternalLink, Phone } from 'lucide-react';
+import { CONFIRME } from '../data/confirmations';
 import { restaurantData } from '../data/restaurantData';
 import { TEXTES_SITE, type Langue } from '../data/textesSite';
 import {
@@ -21,6 +22,18 @@ import {
   getWhatsappNumber,
   ouvrirWhatsapp,
 } from '../engine/whatsapp';
+import { BoutonMagnetique } from './BoutonMagnetique';
+
+const RAYONS_SUCCES = [
+  { x1: 22, y1: 4, x2: 22, y2: 8 },
+  { x1: 22, y1: 36, x2: 22, y2: 40 },
+  { x1: 4, y1: 22, x2: 8, y2: 22 },
+  { x1: 36, y1: 22, x2: 40, y2: 22 },
+  { x1: 9, y1: 9, x2: 12, y2: 12 },
+  { x1: 32, y1: 32, x2: 35, y2: 35 },
+  { x1: 35, y1: 9, x2: 32, y2: 12 },
+  { x1: 12, y1: 32, x2: 9, y2: 35 },
+];
 
 export function ReservationPanel({ langue }: { langue: Langue }) {
   const t = TEXTES_SITE[langue].reservation;
@@ -30,7 +43,7 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
   );
 
   const [date, setDate] = useState(minDate);
-  const [heure, setHeure] = useState('');
+  const [heure, setHeure] = useState(CONFIRME.horaires ? '' : '19:00');
   const [personnes, setPersonnes] = useState(2);
   const [nom, setNom] = useState('');
   const [telephone, setTelephone] = useState('');
@@ -41,15 +54,18 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
 
   const creneaux = useMemo(
     () =>
-      genererCreneauxReservation(
-        date,
-        restaurantData.lieux.horaires,
-        restaurantData.lieux.fuseau,
-      ),
+      CONFIRME.horaires
+        ? genererCreneauxReservation(
+            date,
+            restaurantData.lieux.horaires,
+            restaurantData.lieux.fuseau,
+          )
+        : [],
     [date],
   );
 
   useEffect(() => {
+    if (!CONFIRME.horaires) return;
     if (creneaux.length > 0 && !creneaux.includes(heure)) {
       setHeure(creneaux[0]);
     } else if (creneaux.length === 0) {
@@ -71,16 +87,27 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
       return;
     }
 
-    if (
-      !verifierCreneauValide(
-        date,
-        heure,
-        restaurantData.lieux.horaires,
-        restaurantData.lieux.fuseau,
-      )
-    ) {
-      setErreur(t.aucunCreneau);
-      return;
+    if (CONFIRME.horaires) {
+      if (
+        !verifierCreneauValide(
+          date,
+          heure,
+          restaurantData.lieux.horaires,
+          restaurantData.lieux.fuseau,
+        )
+      ) {
+        setErreur(t.aucunCreneau);
+        return;
+      }
+    } else {
+      if (date < minDate || date > maxDate) {
+        setErreur(t.aucunCreneau);
+        return;
+      }
+      if (!/^\d{2}:\d{2}$/.test(heure)) {
+        setErreur(t.heureInvalide);
+        return;
+      }
     }
 
     const vNom = validerNom(nom);
@@ -139,19 +166,21 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
             >
               {t.date}
             </label>
-            <input
-              id="res-date"
-              type="date"
-              min={minDate}
-              max={maxDate}
-              value={date}
-              onChange={(e) => {
-                setDate(e.target.value);
-                setMessagePret(null);
-              }}
-              required
-              className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire tabular-nums"
-            />
+            <div className="champ-ligne-or">
+              <input
+                id="res-date"
+                type="date"
+                min={minDate}
+                max={maxDate}
+                value={date}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setMessagePret(null);
+                }}
+                required
+                className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire tabular-nums"
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -161,26 +190,42 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
             >
               {t.heure}
             </label>
-            <select
-              id="res-heure"
-              value={heure}
-              onChange={(e) => {
-                setHeure(e.target.value);
-                setMessagePret(null);
-              }}
-              disabled={creneaux.length === 0}
-              className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire tabular-nums"
-            >
-              {creneaux.length === 0 ? (
-                <option value="">—</option>
+            <div className="champ-ligne-or">
+              {CONFIRME.horaires ? (
+                <select
+                  id="res-heure"
+                  value={heure}
+                  onChange={(e) => {
+                    setHeure(e.target.value);
+                    setMessagePret(null);
+                  }}
+                  disabled={creneaux.length === 0}
+                  className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire tabular-nums"
+                >
+                  {creneaux.length === 0 ? (
+                    <option value="">-</option>
+                  ) : (
+                    creneaux.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))
+                  )}
+                </select>
               ) : (
-                creneaux.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))
+                <input
+                  id="res-heure"
+                  type="time"
+                  required
+                  value={heure}
+                  onChange={(e) => {
+                    setHeure(e.target.value);
+                    setMessagePret(null);
+                  }}
+                  className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire tabular-nums"
+                />
               )}
-            </select>
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -190,23 +235,31 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
             >
               {t.personnes}
             </label>
-            <input
-              id="res-personnes"
-              type="number"
-              min={1}
-              max={30}
-              value={personnes}
-              onChange={(e) => {
-                setPersonnes(Math.max(1, Number(e.target.value) || 1));
-                setMessagePret(null);
-              }}
-              required
-              className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire tabular-nums"
-            />
+            <div className="champ-ligne-or">
+              <input
+                id="res-personnes"
+                type="number"
+                min={1}
+                max={30}
+                value={personnes}
+                onChange={(e) => {
+                  setPersonnes(Math.max(1, Number(e.target.value) || 1));
+                  setMessagePret(null);
+                }}
+                required
+                className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire tabular-nums"
+              />
+            </div>
           </div>
         </div>
 
-        {creneaux.length === 0 && (
+        {!CONFIRME.horaires && (
+          <p className="font-editorial italic text-base text-ivoire-doux">
+            {t.heureLibreLabel}
+          </p>
+        )}
+
+        {CONFIRME.horaires && creneaux.length === 0 && (
           <p className="font-editorial italic text-base text-or">{t.aucunCreneau}</p>
         )}
 
@@ -233,18 +286,20 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
                 >
                   {t.nom}
                 </label>
-                <input
-                  id="res-nom"
-                  type="text"
-                  required
-                  maxLength={MAX_LEN_NOM}
-                  value={nom}
-                  onChange={(e) => {
-                    setNom(e.target.value);
-                    setMessagePret(null);
-                  }}
-                  className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire"
-                />
+                <div className="champ-ligne-or">
+                  <input
+                    id="res-nom"
+                    type="text"
+                    required
+                    maxLength={MAX_LEN_NOM}
+                    value={nom}
+                    onChange={(e) => {
+                      setNom(e.target.value);
+                      setMessagePret(null);
+                    }}
+                    className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -254,19 +309,21 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
                 >
                   {t.telephone}
                 </label>
-                <input
-                  id="res-tel"
-                  type="tel"
-                  required
-                  maxLength={MAX_LEN_TEL}
-                  value={telephone}
-                  onChange={(e) => {
-                    setTelephone(e.target.value);
-                    setMessagePret(null);
-                  }}
-                  placeholder="+237 6..."
-                  className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire placeholder:text-ivoire-doux"
-                />
+                <div className="champ-ligne-or">
+                  <input
+                    id="res-tel"
+                    type="tel"
+                    required
+                    maxLength={MAX_LEN_TEL}
+                    value={telephone}
+                    onChange={(e) => {
+                      setTelephone(e.target.value);
+                      setMessagePret(null);
+                    }}
+                    placeholder="+237 6..."
+                    className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire placeholder:text-ivoire-doux"
+                  />
+                </div>
               </div>
             </div>
 
@@ -277,41 +334,75 @@ export function ReservationPanel({ langue }: { langue: Langue }) {
               >
                 {t.remarque}
               </label>
-              <input
-                id="res-remarque"
-                type="text"
-                maxLength={MAX_LEN_REMARQUE}
-                value={remarque}
-                onChange={(e) => {
-                  setRemarque(e.target.value);
-                  setMessagePret(null);
-                }}
-                className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire"
-              />
+              <div className="champ-ligne-or">
+                <input
+                  id="res-remarque"
+                  type="text"
+                  maxLength={MAX_LEN_REMARQUE}
+                  value={remarque}
+                  onChange={(e) => {
+                    setRemarque(e.target.value);
+                    setMessagePret(null);
+                  }}
+                  className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire"
+                />
+              </div>
             </div>
 
             {erreur && (
-              <p role="alert" className="text-xs text-or font-display uppercase tracking-[0.1em]">
+              <p
+                role="alert"
+                className="message-erreur-anim text-xs text-or font-display uppercase tracking-[0.1em]"
+              >
                 {erreur}
               </p>
             )}
 
-            <button
+            <BoutonMagnetique
               type="submit"
-              disabled={creneaux.length === 0}
+              disabled={CONFIRME.horaires && creneaux.length === 0}
               className="focus-marque bg-or text-nuit px-5 py-3 text-xs uppercase tracking-[0.14em] font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
             >
               {t.preparer}
-            </button>
+            </BoutonMagnetique>
           </>
         )}
       </form>
 
       {messagePret && (
         <div className="bg-nuit border border-bronze p-4 space-y-3">
-          <p className="font-display text-xs uppercase tracking-[0.14em] text-or">
-            {t.messagePret}
-          </p>
+          <div className="flex items-center gap-3">
+            <svg
+              viewBox="0 0 44 44"
+              className="w-8 h-8 shrink-0 coche-succes-anime"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle cx="22" cy="22" r="14" stroke="#96650B" strokeWidth="1" />
+              <path
+                d="M15 22.5 L20 27 L29.5 16.5"
+                stroke="#CA8C3A"
+                strokeWidth="2"
+                strokeLinecap="square"
+                className="coche-succes-trait"
+              />
+              {RAYONS_SUCCES.map((r, i) => (
+                <line
+                  key={i}
+                  x1={r.x1}
+                  y1={r.y1}
+                  x2={r.x2}
+                  y2={r.y2}
+                  stroke="#CA8C3A"
+                  strokeWidth="1.2"
+                  className="rayon-succes"
+                />
+              ))}
+            </svg>
+            <p className="font-display text-xs uppercase tracking-[0.14em] text-or">
+              {t.messagePret}
+            </p>
+          </div>
           <pre className="whitespace-pre-wrap font-display text-xs text-ivoire bg-surface border border-bronze p-3">
             {messagePret}
           </pre>

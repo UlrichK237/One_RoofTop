@@ -1,55 +1,22 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-
-export function useEstVisible(seuil = 0.15) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setVisible(true);
-      return;
-    }
-
-    if (typeof IntersectionObserver === 'undefined') {
-      setVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            observer.disconnect();
-            break;
-          }
-        }
-      },
-      { threshold: seuil },
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [seuil]);
-
-  return { ref, visible };
-}
+import type { ReactNode } from 'react';
+import { CONFIRME } from '../data/confirmations';
+import { useReveal } from './motion/useReveal';
 
 export function EtageReveal({
   children,
   className = '',
+  immediat = false,
 }: {
   children: ReactNode;
   className?: string;
+  immediat?: boolean;
 }) {
-  const { ref, visible } = useEstVisible(0.08);
+  const { ref, visible } = useReveal(immediat);
   return (
     <div
       ref={ref}
-      className={`etage-reveal ${visible ? 'est-visible' : ''} ${className}`.trim()}
+      data-reveal=""
+      className={`${visible ? 'est-visible' : ''} ${className}`.trim()}
     >
       {children}
     </div>
@@ -61,7 +28,7 @@ export function EtageReveal({
  * tracée en filets d'or et de bronze au défilement.
  */
 export function FacadeOrSvg({ variante = 'immeuble' }: { variante?: 'immeuble' | 'separateur' }) {
-  const { ref, visible } = useEstVisible(0.15);
+  const { ref, visible } = useReveal(false);
   const clsTrait = `trait-facade ${visible ? 'est-visible' : ''}`;
 
   if (variante === 'separateur') {
@@ -87,38 +54,32 @@ export function FacadeOrSvg({ variante = 'immeuble' }: { variante?: 'immeuble' |
   return (
     <div ref={ref} className="w-full" aria-hidden="true">
       <svg
-        viewBox="0 0 440 360"
+        viewBox="0 0 440 300"
         className="w-full h-auto"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Charpente d'élévation en étages */}
-        <rect x="16" y="16" width="408" height="328" stroke="#96650B" strokeWidth="1" className={clsTrait} />
-        {/* Cloisons verticales façon façade du logo */}
-        <line x1="110" y1="16" x2="110" y2="344" stroke="#96650B" strokeWidth="1" className={clsTrait} />
-        <line x1="220" y1="16" x2="220" y2="344" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
-        <line x1="330" y1="16" x2="330" y2="344" stroke="#96650B" strokeWidth="1" className={clsTrait} />
-
-        {/* Niveaux horizontaux (RDC au Toit) */}
-        <line x1="16" y1="278" x2="424" y2="278" stroke="#96650B" strokeWidth="1" className={clsTrait} />
-        <line x1="16" y1="212" x2="424" y2="212" stroke="#96650B" strokeWidth="1" className={clsTrait} />
-        <line x1="16" y1="146" x2="424" y2="146" stroke="#96650B" strokeWidth="1" className={clsTrait} />
-        <line x1="16" y1="80" x2="424" y2="80" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
-
-        {/* Pan incliné de toiture rappelant l'angle du logo */}
+        <rect x="16" y="16" width="408" height="268" stroke="#96650B" strokeWidth="1" className={clsTrait} />
+        <line x1="110" y1="16" x2="110" y2="284" stroke="#96650B" strokeWidth="1" className={clsTrait} />
+        <line x1="220" y1="16" x2="220" y2="284" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
+        <line x1="330" y1="16" x2="330" y2="284" stroke="#96650B" strokeWidth="1" className={clsTrait} />
+        <line x1="16" y1="228" x2="424" y2="228" stroke="#96650B" strokeWidth="1" className={clsTrait} />
+        <line x1="16" y1="172" x2="424" y2="172" stroke="#96650B" strokeWidth="1" className={clsTrait} />
+        <line x1="16" y1="116" x2="424" y2="116" stroke="#96650B" strokeWidth="1" className={clsTrait} />
+        <line x1="16" y1="68" x2="424" y2="68" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
         <polyline
-          points="16,120 110,48 424,48"
+          points="16,102 110,44 424,44"
           stroke="#CA8C3A"
           strokeWidth="1.25"
           className={clsTrait}
         />
-
-        {/* Silhouette géométrisée du jacaranda sur la terrasse supérieure */}
-        <line x1="275" y1="212" x2="275" y2="112" stroke="#CA8C3A" strokeWidth="1.2" className={clsTrait} />
-        <polyline points="275,148 242,118 228,104" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
-        <polyline points="275,136 312,108 326,96" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
-        <polyline points="275,112 260,88" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
-        <polyline points="275,112 294,88" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
+        {CONFIRME.jacaranda && (
+          <>
+            <line x1="275" y1="172" x2="275" y2="92" stroke="#CA8C3A" strokeWidth="1.2" className={clsTrait} />
+            <polyline points="275,126 248,100" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
+            <polyline points="275,118 304,96" stroke="#CA8C3A" strokeWidth="1" className={clsTrait} />
+          </>
+        )}
       </svg>
     </div>
   );

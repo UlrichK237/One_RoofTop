@@ -32,13 +32,19 @@ Tant que `VITE_WHATSAPP_NUMBER` est vide, l’envoi direct vers WhatsApp reste d
 - `node scripts/fetch-photos.mjs` : génération de la revue photos (`scripts/out/photos-review.html`)
 - `node scripts/check-photos.mjs` : contrôle d’intégrité et d’absence de doublons des photos
 - `npm run verif` : contrôles de sécurité et d’hygiène sur `src/` et `dist/`
+- `npm run verif:animations` : contrôle des budgets JS/CSS gzip, polices, accessibilité et règles d’animation
 - `npm test` : suite de tests unitaires (nettoyage, validation téléphone/noms/liens, créneaux horaires)
+
+## Activation des informations confirmées
+
+Toutes les mentions conditionnelles (horaires précis, e-mail, services, privatisation, commande à emporter ou livraison) sont centralisées dans `src/data/confirmations.ts` via l’objet `CONFIRME`. Passez un indicateur à `true` uniquement après accord explicite de l’établissement (voir la liste dans `docs/A-CONFIRMER.md`).
 
 ## Ajout des photos du restaurant
 
-1. Déposez les photos optimisées (max 80 Ko chacune) dans `public/photos/`.
-2. Référencez chaque plat dans `src/data/platPhotos.json` avec la clé `categorie::nom` exacte issue de `src/data/restaurantData.ts` (avec `src`, `width`, `height`, `alt`).
-3. Exécutez `node scripts/check-photos.mjs` puis `npm run build`.
+1. **Photos des plats** : déposez les images optimisées (max 80 Ko chacune) dans `public/photos/`, puis référencez chaque plat dans `src/data/platPhotos.json` avec la clé `categorie::nom` exacte issue de `src/data/restaurantData.ts` (`src`, `width`, `height`, `alt`).
+2. **Photos du lieu (façade, salle, terrasse)** : déposez les images dans `public/photos/lieu/` et ajoutez un fichier `public/photos/lieu/manifest.json` listant des objets `{ "fichier", "legende", "credit", "emplacement" }`. Sans ce fichier, les scènes architecturales dessinées s’affichent automatiquement.
+3. Les deux logos officiels se trouvent dans `public/assets/logo-rond.webp` et `public/assets/logo-complet.jpeg`.
+4. Exécutez `npm run build && npm run verif && npm run verif:animations`.
 
 ## Mise en ligne
 

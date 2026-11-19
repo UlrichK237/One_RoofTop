@@ -1,0 +1,665 @@
+:root {
+  --t-fast: 150ms;
+  --t-base: 320ms;
+  --t-slow: 680ms;
+  --t-epic: 1100ms;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --scroll-progress: 0;
+}
+
+/* ---------- Révélations d'étages et échelonnement (CSS pur, zéro style inline) ---------- */
+html.js-motion[data-motion='full'] [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity var(--t-base) var(--ease-out),
+    transform var(--t-base) var(--ease-out);
+}
+
+html.js-motion[data-motion='full'] [data-reveal].est-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+html.js-motion[data-motion='reduced'] [data-reveal] {
+  opacity: 0;
+  transition: opacity var(--t-fast) var(--ease-out);
+}
+
+html.js-motion[data-motion='reduced'] [data-reveal].est-visible {
+  opacity: 1;
+}
+
+html[data-motion='off'] [data-reveal] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* Échelonnement de la liste du registre (12 premiers éléments, max 500 ms total) */
+html.js-motion[data-motion='full'] .registre-liste-anime > li {
+  animation: entreeLigneCarte var(--t-base) var(--ease-out) both;
+}
+
+.registre-liste-anime > li:nth-child(1) { animation-delay: 0ms; }
+.registre-liste-anime > li:nth-child(2) { animation-delay: 28ms; }
+.registre-liste-anime > li:nth-child(3) { animation-delay: 56ms; }
+.registre-liste-anime > li:nth-child(4) { animation-delay: 84ms; }
+.registre-liste-anime > li:nth-child(5) { animation-delay: 112ms; }
+.registre-liste-anime > li:nth-child(6) { animation-delay: 140ms; }
+.registre-liste-anime > li:nth-child(7) { animation-delay: 168ms; }
+.registre-liste-anime > li:nth-child(8) { animation-delay: 196ms; }
+.registre-liste-anime > li:nth-child(9) { animation-delay: 224ms; }
+.registre-liste-anime > li:nth-child(10) { animation-delay: 252ms; }
+.registre-liste-anime > li:nth-child(11) { animation-delay: 280ms; }
+.registre-liste-anime > li:nth-child(12) { animation-delay: 308ms; }
+.registre-liste-anime > li:nth-child(n + 13) { animation-delay: 330ms; }
+
+@keyframes entreeLigneCarte {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Scène 1 : Hero "Allumage" ---------- */
+.hero-lanterne {
+  position: relative;
+}
+
+.hero-lanterne-aura {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 45%),
+    rgba(202, 140, 58, 0.14),
+    rgba(202, 140, 58, 0.03) 45%,
+    transparent 75%
+  );
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+html[data-motion='full'] .hero-lanterne.est-survol .hero-lanterne-aura {
+  opacity: 1;
+}
+
+.hero-grille-trait {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 0;
+}
+
+html.js-motion[data-motion='full'] .hero-allumage:not(.est-allume) .hero-grille-trait {
+  stroke-dashoffset: 900;
+}
+
+html.js-motion[data-motion='full'] .hero-grille-trait {
+  transition: stroke-dashoffset var(--t-epic) var(--ease-out);
+}
+
+.hero-chateau-1 {
+  opacity: 1;
+  transform: scale(1);
+}
+
+html.js-motion[data-motion='full'] .hero-allumage:not(.est-allume) .hero-chateau-1 {
+  opacity: 0.25;
+  transform: scale(0.96);
+}
+
+html.js-motion[data-motion='full'] .hero-chateau-1 {
+  transform-origin: center;
+  transition:
+    opacity var(--t-slow) var(--ease-out) 220ms,
+    transform var(--t-slow) var(--ease-out) 220ms;
+}
+
+/* Texte du hero lisible avant 600 ms et sans masquage bloquant */
+html.js-motion[data-motion='full'] .hero-entree-texte {
+  animation: heroTexteEntree 420ms var(--ease-out) both;
+}
+
+@keyframes heroTexteEntree {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes respirationFleche {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.72;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+html[data-motion='full'] .indice-monter-fleche {
+  animation: respirationFleche 2.2s var(--ease-in-out) infinite;
+}
+
+/* ---------- Scène 2 : Ascenseur "Ascension" ---------- */
+.cabine-ascenseur {
+  transition: transform var(--t-base) var(--ease-out);
+  will-change: transform;
+}
+
+.jauge-ascenseur-barre {
+  transform-origin: bottom center;
+  transform: scaleY(var(--scroll-progress, 0));
+  transition: transform 80ms linear;
+}
+
+@supports (animation-timeline: scroll()) {
+  @keyframes jaugeProgressionScroll {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  html[data-motion='full'] .jauge-ascenseur-barre {
+    transition: none;
+    animation: jaugeProgressionScroll linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+/* Parallaxe légère (max ±32px) sur couches du hero en mode full */
+html[data-motion='full'] .couche-parallaxe-lente {
+  transform: translate3d(0, calc(var(--section-progress, 0.5) * -22px + 11px), 0);
+}
+
+html[data-motion='full'] .couche-parallaxe-moyenne {
+  transform: translate3d(0, calc(var(--section-progress, 0.5) * -32px + 16px), 0);
+}
+
+/* ---------- Scène 3 : Portes d'ascenseur entre étages ---------- */
+.porte-gauche,
+.porte-droite {
+  transform-box: fill-box;
+  transition: transform 900ms var(--ease-in-out);
+  will-change: transform;
+}
+
+.portes-fermees .porte-gauche { transform: translateX(0); }
+.portes-fermees .porte-droite { transform: translateX(0); }
+.portes-ouvertes .porte-gauche { transform: translateX(-34%); }
+.portes-ouvertes .porte-droite { transform: translateX(34%); }
+
+.voyant-porte {
+  transition: opacity var(--t-base) var(--ease-out);
+  opacity: 0.35;
+}
+
+.portes-ouvertes .voyant-porte {
+  opacity: 1;
+}
+
+@supports (animation-timeline: view()) {
+  @keyframes ouvrirPorteGauche {
+    0% { transform: translateX(0); }
+    45%, 100% { transform: translateX(-34%); }
+  }
+  @keyframes ouvrirPorteDroite {
+    0% { transform: translateX(0); }
+    45%, 100% { transform: translateX(34%); }
+  }
+
+  html[data-motion='full'] .portes-vue-timeline .porte-gauche {
+    transition: none;
+    animation: ouvrirPorteGauche var(--ease-in-out) both;
+    animation-timeline: view(block);
+    animation-range: entry 10% cover 45%;
+  }
+
+  html[data-motion='full'] .portes-vue-timeline .porte-droite {
+    transition: none;
+    animation: ouvrirPorteDroite var(--ease-in-out) both;
+    animation-timeline: view(block);
+    animation-range: entry 10% cover 45%;
+  }
+}
+
+/* ---------- Scène 4 : Ambiances par étage & Photos lieu ---------- */
+@keyframes ondeBar {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+@keyframes braiseMontante {
+  0% {
+    transform: translateY(18px) scale(0.9);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.55;
+  }
+  80% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(-38px) scale(0.6);
+    opacity: 0;
+  }
+}
+
+@keyframes bulleChampagne {
+  0% {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-48px);
+    opacity: 0;
+  }
+}
+
+@keyframes faisceauSoiree {
+  0%, 100% {
+    transform: rotate(-7deg);
+    opacity: 0.28;
+  }
+  50% {
+    transform: rotate(7deg);
+    opacity: 0.52;
+  }
+}
+
+@keyframes egaliseurLent {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes scintillementDoux {
+  0%, 100% { opacity: 0.16; }
+  50% { opacity: 0.58; }
+}
+
+@keyframes zoomPhotoLent {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.06); }
+}
+
+html[data-motion='full'] .scene-onde {
+  transform-origin: center;
+  animation: ondeBar 4.2s var(--ease-out) infinite;
+}
+
+html[data-motion='full'] .scene-braise {
+  animation: braiseMontante 5.4s linear infinite;
+}
+
+html[data-motion='full'] .scene-bulle {
+  animation: bulleChampagne 4.8s linear infinite;
+}
+
+html[data-motion='full'] .scene-faisceau {
+  transform-origin: top center;
+  animation: faisceauSoiree 6.5s var(--ease-in-out) infinite;
+}
+
+html[data-motion='full'] .scene-egaliseur {
+  transform-origin: bottom center;
+  animation: egaliseurLent 2.2s var(--ease-in-out) infinite;
+}
+
+html[data-motion='full'] .scene-scintille {
+  animation: scintillementDoux 2.8s var(--ease-in-out) infinite;
+}
+
+html[data-motion='full'] .photo-lieu-zoom {
+  animation: zoomPhotoLent 14s linear infinite alternate;
+  will-change: transform;
+}
+
+.delai-2 { animation-delay: 0.9s; }
+.delai-4 { animation-delay: 1.8s; }
+.grille-delais > :nth-child(3n + 1) { animation-delay: 0.1s; }
+.grille-delais > :nth-child(3n + 2) { animation-delay: 0.85s; }
+.grille-delais > :nth-child(3n + 3) { animation-delay: 1.65s; }
+.grille-delais > :nth-child(2n) { animation-duration: 5.1s; }
+
+.est-en-pause,
+.est-en-pause *,
+html[data-tab-hidden='true'] .scene-onde,
+html[data-tab-hidden='true'] .scene-braise,
+html[data-tab-hidden='true'] .scene-bulle,
+html[data-tab-hidden='true'] .scene-faisceau,
+html[data-tab-hidden='true'] .scene-egaliseur,
+html[data-tab-hidden='true'] .scene-scintille,
+html[data-tab-hidden='true'] .photo-lieu-zoom,
+html[data-tab-hidden='true'] .indice-monter-fleche {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Scène 5 : Carte vivante ---------- */
+.onglet-indicateur {
+  transform: translate3d(var(--tab-x, 0px), var(--tab-y, 0px), 0) scaleX(var(--tab-sx, 0));
+  transform-origin: left center;
+  transition: transform var(--t-base) var(--ease-out);
+  will-change: transform;
+}
+
+.ligne-carte-item {
+  position: relative;
+}
+
+.ligne-carte-titre {
+  transition:
+    transform var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.ligne-carte-filet-hover {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--t-base) var(--ease-out);
+}
+
+html[data-motion='full'] .ligne-carte-item:hover .ligne-carte-filet-hover,
+html[data-motion='full'] .ligne-carte-item:focus-within .ligne-carte-filet-hover {
+  transform: scaleX(1);
+}
+
+html[data-motion='full'] .ligne-carte-item:hover .ligne-carte-titre,
+html[data-motion='full'] .ligne-carte-item:focus-within .ligne-carte-titre {
+  transform: translateX(4px);
+}
+
+/* Ouverture / repli de la recherche via grid-template-rows uniquement */
+.recherche-tiroir-grid {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--t-base) var(--ease-out),
+    opacity var(--t-fast) var(--ease-out);
+}
+
+.recherche-tiroir-grid.est-replie {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.recherche-tiroir-contenu {
+  overflow: hidden;
+}
+
+@keyframes anneauAjout {
+  0% {
+    transform: scale(0.82);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.bouton-ajout-anneau {
+  animation: anneauAjout 460ms var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+/* ---------- Scène 6 : Fenêtres, champs & boutons ---------- */
+@keyframes fenetreEntree {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+html[data-motion='full'] .fenetre-modale-panneau {
+  animation: fenetreEntree 260ms var(--ease-out) both;
+}
+
+@keyframes messageErreurEntree {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-erreur-anim {
+  animation: messageErreurEntree 220ms var(--ease-out) both;
+}
+
+.champ-ligne-or {
+  position: relative;
+}
+
+.champ-ligne-or::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: var(--color-or);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--t-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.champ-ligne-or:focus-within::after {
+  transform: scaleX(1);
+}
+
+@keyframes rayonSucces {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+.coche-succes-trait {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 0;
+}
+
+html[data-motion='full'] .coche-succes-anime .coche-succes-trait {
+  animation: dessinerCoche 480ms var(--ease-out) both;
+}
+
+@keyframes dessinerCoche {
+  from { stroke-dashoffset: 48; }
+  to { stroke-dashoffset: 0; }
+}
+
+html[data-motion='full'] .coche-succes-anime .rayon-succes {
+  transform-origin: center;
+  animation: rayonSucces 620ms var(--ease-out) 160ms both;
+}
+
+/* Bouton magnétique léger sur ordinateur uniquement */
+.cta-magnetique {
+  transition:
+    transform var(--t-fast) var(--ease-out),
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out);
+  will-change: transform;
+}
+
+.cta-magnetique:active {
+  transform: translate3d(0, 1px, 0) scale(0.985);
+}
+
+/* ---------- Scène 7 : Typographie en mouvement ---------- */
+.titre-etage-masque {
+  overflow: hidden;
+}
+
+html.js-motion[data-motion='full'] .titre-etage-anim {
+  opacity: 0;
+  transform: translateY(100%);
+  letter-spacing: 0.36em;
+  transition:
+    opacity 720ms var(--ease-out),
+    transform 720ms var(--ease-out),
+    letter-spacing 860ms var(--ease-out);
+}
+
+html.js-motion[data-motion='full'] .est-visible .titre-etage-anim {
+  opacity: 1;
+  transform: translateY(0);
+  letter-spacing: 0.14em;
+}
+
+html.js-motion[data-motion='full'] .sous-titre-etage-anim {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--t-slow) var(--ease-out) 180ms,
+    transform var(--t-slow) var(--ease-out) 180ms;
+}
+
+html.js-motion[data-motion='full'] .est-visible .sous-titre-etage-anim {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chiffre-etage-deco {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(150, 101, 11, 0.55);
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  user-select: none;
+}
+
+.chiffre-etage-remplissage {
+  position: absolute;
+  inset: 0;
+  color: var(--color-or);
+  -webkit-text-stroke: 0;
+  clip-path: inset(calc(100% - (var(--section-progress, 0) * 100%)) 0 0 0);
+}
+
+.langue-fondu {
+  transition: opacity 200ms var(--ease-out);
+}
+
+.langue-fondu.est-en-transition {
+  opacity: 0.25;
+}
+
+/* ---------- Désactivation globale reduced / off ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .indice-monter-fleche,
+  .scene-onde,
+  .scene-braise,
+  .scene-bulle,
+  .scene-faisceau,
+  .scene-egaliseur,
+  .scene-scintille,
+  .photo-lieu-zoom,
+  .fenetre-modale-panneau,
+  .message-erreur-anim,
+  .coche-succes-trait,
+  .rayon-succes,
+  .registre-liste-anime > li,
+  .hero-entree-texte {
+    animation: none !important;
+  }
+
+  .cabine-ascenseur,
+  .jauge-ascenseur-barre,
+  .porte-gauche,
+  .porte-droite,
+  .onglet-indicateur,
+  .ligne-carte-titre,
+  .ligne-carte-filet-hover,
+  .cta-magnetique,
+  .titre-etage-anim,
+  .sous-titre-etage-anim,
+  .hero-grille-trait,
+  .hero-chateau-1 {
+    transition: none !important;
+  }
+
+  .couche-parallaxe-lente,
+  .couche-parallaxe-moyenne {
+    transform: none !important;
+  }
+
+  .chiffre-etage-remplissage {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+html[data-motion='reduced'],
+html[data-motion='off'] {
+  scroll-behavior: auto;
+}
+
+html[data-motion='reduced'] .indice-monter-fleche,
+html[data-motion='reduced'] .scene-onde,
+html[data-motion='reduced'] .scene-braise,
+html[data-motion='reduced'] .scene-bulle,
+html[data-motion='reduced'] .scene-faisceau,
+html[data-motion='reduced'] .scene-egaliseur,
+html[data-motion='reduced'] .scene-scintille,
+html[data-motion='reduced'] .photo-lieu-zoom,
+html[data-motion='off'] .indice-monter-fleche,
+html[data-motion='off'] .scene-onde,
+html[data-motion='off'] .scene-braise,
+html[data-motion='off'] .scene-bulle,
+html[data-motion='off'] .scene-faisceau,
+html[data-motion='off'] .scene-egaliseur,
+html[data-motion='off'] .scene-scintille,
+html[data-motion='off'] .photo-lieu-zoom,
+html[data-motion='off'] .fenetre-modale-panneau,
+html[data-motion='off'] .registre-liste-anime > li {
+  animation: none !important;
+}
+
+html[data-motion='reduced'] .couche-parallaxe-lente,
+html[data-motion='reduced'] .couche-parallaxe-moyenne,
+html[data-motion='off'] .couche-parallaxe-lente,
+html[data-motion='off'] .couche-parallaxe-moyenne {
+  transform: none !important;
+}
+
+html[data-motion='off'] * {
+  transition-duration: 0ms !important;
+}

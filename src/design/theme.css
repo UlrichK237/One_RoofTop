@@ -129,20 +129,6 @@ body {
   stroke-dashoffset: 0;
 }
 
-/* Révélation discrète d'étage */
-.etage-reveal {
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.etage-reveal.est-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 @keyframes panierPulse {
   0% {
     transform: scale(1);
@@ -166,11 +152,6 @@ body {
   .trait-facade {
     stroke-dasharray: none;
     stroke-dashoffset: 0;
-    transition: none;
-  }
-  .etage-reveal {
-    opacity: 1;
-    transform: none;
     transition: none;
   }
   .anim-panier {

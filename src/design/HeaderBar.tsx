@@ -1,4 +1,5 @@
 import { ShoppingBag } from 'lucide-react';
+import { AFFICHER_PANIER } from '../data/confirmations';
 import { TEXTES_SITE, type Langue } from '../data/textesSite';
 
 export function HeaderBar({
@@ -25,7 +26,7 @@ export function HeaderBar({
           className="focus-marque flex items-center gap-3 whitespace-nowrap shrink-0"
         >
           <img
-            src="/assets/aistudio/IMG_5525_606dba31.webp"
+            src="/assets/logo-rond.webp"
             alt="One Rooftop"
             width={30}
             height={30}
@@ -67,27 +68,39 @@ export function HeaderBar({
               {t.soirees}
             </a>
           )}
-          <a
-            href="#etage-toit"
-            className="focus-marque py-1 hover:text-ivoire hover:underline underline-offset-4 whitespace-nowrap shrink-0"
-          >
-            {t.reserver}
-          </a>
+          {AFFICHER_PANIER && (
+            <a
+              href="#etage-toit"
+              className="focus-marque py-1 hover:text-ivoire hover:underline underline-offset-4 whitespace-nowrap shrink-0"
+            >
+              {t.reserver}
+            </a>
+          )}
         </nav>
 
         {/* Zone 3 : Action primaire unique */}
         <div className="flex items-center shrink-0">
-          <button
-            type="button"
-            onClick={onOuvrirPanier}
-            className={`focus-marque bg-or text-nuit px-4 py-2 text-xs uppercase tracking-[0.14em] font-medium flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
-              animationPanier ? 'anim-panier' : ''
-            }`}
-          >
-            <ShoppingBag className="w-4 h-4" aria-hidden="true" />
-            <span>{t.panier}</span>
-            <span className="tabular-nums">({nombreArticles})</span>
-          </button>
+          {AFFICHER_PANIER ? (
+            <button
+              id="panier-bouton"
+              type="button"
+              onClick={onOuvrirPanier}
+              className={`focus-marque bg-or text-nuit px-4 py-2 text-xs uppercase tracking-[0.14em] font-medium flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
+                animationPanier ? 'anim-panier' : ''
+              }`}
+            >
+              <ShoppingBag className="w-4 h-4" aria-hidden="true" />
+              <span>{t.panier}</span>
+              <span className="tabular-nums">({nombreArticles})</span>
+            </button>
+          ) : (
+            <a
+              href="#etage-toit"
+              className="focus-marque bg-or text-nuit px-4 py-2 text-xs uppercase tracking-[0.14em] font-medium inline-flex items-center whitespace-nowrap shrink-0 transition-colors"
+            >
+              {t.reserver}
+            </a>
+          )}
         </div>
       </div>
     </header>

@@ -1,3 +1,5 @@
+import { CONFIRME } from './confirmations';
+
 export type Langue = 'fr' | 'en';
 
 export interface EtagesConfig {
@@ -30,13 +32,17 @@ export const TEXTES_SITE = {
     rdc: {
       surTitre: 'Rez-de-chaussée · 1163, rue Njo-Njo · Bonapriso',
       titre: 'One Rooftop',
-      sousTitre: 'Bar à cocktails, restaurant et terrasse au-dessus de Bombay Masala.',
-      intro:
-        'Ouvert depuis décembre 2020 à Bonapriso, One Rooftop réunit une salle intérieure climatisée et une terrasse en rooftop autour d’une carte intercontinentale, de grillades au charbon de bois, de sushis et d’une cave de Bordeaux et spiritueux.',
+      sousTitre: CONFIRME.auDessusDeBombayMasala
+        ? 'Bar à cocktails, restaurant et terrasse au-dessus de Bombay Masala.'
+        : 'Bar à cocktails, restaurant et rooftop à Bonapriso, Douala.',
+      intro: CONFIRME.salleClimatisee
+        ? 'Ouvert depuis décembre 2020 à Bonapriso, One Rooftop réunit une salle intérieure climatisée et une terrasse autour d’une carte intercontinentale, de grillades au charbon de bois, de sushis et d’une cave de Bordeaux et spiritueux.'
+        : 'Ouvert depuis décembre 2020 à Bonapriso : bar à cocktails, cuisine intercontinentale, grillades au charbon de bois, sushis et cave de Bordeaux et spiritueux.',
       ctaReserver: 'Réserver une table',
       ctaCarte: 'Monter à la carte',
-      photoSlotTitre: 'Vue extérieure et terrasse en rooftop',
-      photoSlotMention: 'Emplacement réservé aux photographies fournies par l’établissement.',
+      monterIndice: 'Monter',
+      photoSlotTitre: 'Architecture · 1163 rue Njo-Njo',
+      photoSlotSousTitre: 'Bonapriso, Douala',
     },
     carte: {
       recherchePlaceholder: 'Rechercher un plat, un vin, un cocktail…',
@@ -47,6 +53,7 @@ export const TEXTES_SITE = {
       filtreV: 'Végétarien (V)',
       filtreLC: 'Faible en calories (LC)',
       ajouter: 'Ajouter',
+      ajouteConfirmation: 'Ajouté',
       choisir: 'Options',
       verre: 'Verre',
       bouteille: 'Bouteille',
@@ -56,27 +63,38 @@ export const TEXTES_SITE = {
       remarqueLabel: 'Précision pour la cuisine ou le bar',
       remarquePlaceholder: 'Cuisson souhaitée, sans glace, précision…',
       quantite: 'Quantité',
-      photoAttenteTitre: 'Photographie à venir',
-      photoAttenteDesc:
-        'Cet emplacement accueillera la photo officielle fournie par One Rooftop.',
+      photoAttenteTitre: 'One Rooftop · Bonapriso',
+      photoAttenteDesc: 'Illustration architecturale de la table et du bar.',
       photoApprochante:
         'Photo d’illustration approchante : elle ne représente pas exactement ce plat.',
       fermer: 'Fermer',
     },
     soirees: {
-      surTitre: 'Étage 04 · Ambiance & Salons',
-      titre: 'Soirées, Musique & Privatisation',
+      surTitre: 'Étage 04 · Soirées & Salons',
+      titre: 'Soirées & Réceptions',
       intro:
-        'L’ambiance évolue au fil des heures : dîner feutré accompagné de musique live (jazz, soul ou pop) en début de soirée, puis programmation DJ jusqu’à tard, notamment les vendredis et samedis.',
-      blocJacarandaTitre: 'Le bar et le jacaranda lumineux',
+        CONFIRME.musiqueLive && CONFIRME.dj
+          ? 'Dîner accompagné de musique live en début de soirée, puis programmation DJ.'
+          : CONFIRME.musiqueLive
+            ? 'Dîner accompagné de musique live en soirée.'
+            : CONFIRME.dj
+              ? 'Programmation DJ en soirée.'
+              : 'Espace du soir à Bonapriso.',
+      blocJacarandaTitre: 'Le bar central et le jacaranda lumineux',
       blocJacarandaTexte:
-        'Installé au centre du bar, le jacaranda lumineux structure l’espace entre la salle climatisée et la terrasse en rooftop.',
-      blocPrivatisationTitre: 'Privatisation, salle privée et traiteur',
+        'Installé au centre du bar, le jacaranda lumineux structure l’espace du soir.',
+      blocPrivatisationTitre: 'Réceptions sur demande',
       blocPrivatisationTexte:
-        'L’établissement propose une salle privée, la privatisation d’espace pour vos célébrations et un service traiteur sur demande.',
-      ctaPrivatiser: 'Demander une réservation ou privatisation',
-      photoTerrasse: 'Terrasse rooftop et bar central',
-      photoSalle: 'Salle intérieure climatisée et espace privé',
+        CONFIRME.traiteur && CONFIRME.privatisation
+          ? 'Salle privée, privatisation d’espace et service traiteur sur demande.'
+          : CONFIRME.privatisation
+            ? 'Privatisation d’espace pour vos célébrations sur demande.'
+            : 'Service traiteur disponible sur demande.',
+      ctaPrivatiser: CONFIRME.privatisation
+        ? 'Demander une réservation ou privatisation'
+        : 'Demander une réservation',
+      photoTerrasse: 'Terrasse et bar en soirée',
+      photoSalle: 'Espace de réception',
     },
     toit: {
       surTitre: 'Sommet · Toit de Bonapriso',
@@ -92,17 +110,21 @@ export const TEXTES_SITE = {
       sousTitre: 'La table n’est réservée qu’après confirmation du restaurant.',
       date: 'Date',
       heure: 'Heure d’arrivée',
+      heureLibreLabel: 'Heure souhaitée (confirmation par le restaurant)',
+      heureInvalide: 'Indiquez une heure valide au format HH:MM.',
       aucunCreneau: 'Aucun créneau disponible ce jour-là (fermeture ou service terminé).',
       personnes: 'Nombre de personnes',
       plusDe12:
         'Au-delà de 12 personnes, merci de contacter directement le restaurant par téléphone au +237 671 03 33 33.',
       nom: 'Nom complet',
       telephone: 'Téléphone',
-      remarque: 'Précision (terrasse, salle climatisée, anniversaire…)',
+      remarque: CONFIRME.salleClimatisee
+        ? 'Précision (terrasse, salle climatisée, anniversaire…)'
+        : 'Précision (anniversaire, allergie, placement…)',
       preparer: 'Préparer la demande',
       messagePret: 'Votre demande est prête à être envoyée.',
       whatsappDesactive:
-        'L’envoi direct par WhatsApp n’est pas activé sur cette pré-version. Copiez votre demande ci-dessous et appelez le restaurant ou transmettez-la sur son numéro.',
+        'L’envoi direct par WhatsApp n’est pas activé pour le moment. Copiez votre demande ci-dessous et appelez le restaurant.',
       tropLong:
         'Le message dépasse 1 800 caractères pour un lien direct. Utilisez le bouton « Copier le message » ci-dessous.',
       copier: 'Copier le message',
@@ -135,9 +157,9 @@ export const TEXTES_SITE = {
       titre: 'Confidentialité & Fonctionnement du site',
       points: [
         'Aucune donnée personnelle (nom, téléphone, adresse) n’est enregistrée dans votre navigateur ni transmise à un serveur tiers.',
-        'Seul le contenu de votre panier (identifiants des plats, quantités, options et remarques) est conservé localement dans votre navigateur pendant 24 heures.',
+        'Lorsqu’un panier est actif, son contenu (identifiants des plats, quantités, options et remarques) est conservé localement dans votre navigateur pendant 24 heures.',
         'Le site n’utilise ni cookies publicitaires, ni traceurs statistiques, ni polices hébergées sur des serveurs externes.',
-        'Lorsque vous envoyez une commande ou une demande de réservation, le message est préparé localement afin que vous puissiez le transmettre directement au restaurant via WhatsApp ou par appel téléphonique.',
+        'Lorsque vous préparez une demande de table ou une commande, le message est formaté localement afin que vous puissiez le transmettre directement au restaurant.',
       ],
     },
     footer: {
@@ -158,13 +180,17 @@ export const TEXTES_SITE = {
     rdc: {
       surTitre: 'Ground Floor · 1163 Rue Njo-Njo · Bonapriso',
       titre: 'One Rooftop',
-      sousTitre: 'Cocktail bar, restaurant and rooftop terrace above Bombay Masala.',
-      intro:
-        'Open since December 2020 in Bonapriso, One Rooftop brings together an air-conditioned dining room and a rooftop terrace with an intercontinental menu, charcoal grill, sushi and a cellar of Bordeaux wines and spirits.',
+      sousTitre: CONFIRME.auDessusDeBombayMasala
+        ? 'Cocktail bar, restaurant and rooftop terrace above Bombay Masala.'
+        : 'Cocktail bar, restaurant and rooftop in Bonapriso, Douala.',
+      intro: CONFIRME.salleClimatisee
+        ? 'Open since December 2020 in Bonapriso, One Rooftop brings together an air-conditioned dining room and a terrace with an intercontinental menu, charcoal grill, sushi and a cellar of Bordeaux wines and spirits.'
+        : 'Open since December 2020 in Bonapriso: cocktail bar, intercontinental kitchen, charcoal grill, sushi, and a cellar of Bordeaux wines and spirits.',
       ctaReserver: 'Request a table',
       ctaCarte: 'Explore the menu',
-      photoSlotTitre: 'Exterior and rooftop terrace',
-      photoSlotMention: 'Space reserved for official photographs provided by the venue.',
+      monterIndice: 'Ascend',
+      photoSlotTitre: 'Architecture · 1163 Rue Njo-Njo',
+      photoSlotSousTitre: 'Bonapriso, Douala',
     },
     carte: {
       recherchePlaceholder: 'Search a dish, wine, or cocktail…',
@@ -175,6 +201,7 @@ export const TEXTES_SITE = {
       filtreV: 'Vegetarian (V)',
       filtreLC: 'Low Calorie (LC)',
       ajouter: 'Add',
+      ajouteConfirmation: 'Added',
       choisir: 'Options',
       verre: 'Glass',
       bouteille: 'Bottle',
@@ -184,27 +211,38 @@ export const TEXTES_SITE = {
       remarqueLabel: 'Note for kitchen or bar',
       remarquePlaceholder: 'Cooking preference, ice preference…',
       quantite: 'Quantity',
-      photoAttenteTitre: 'Photograph forthcoming',
-      photoAttenteDesc:
-        'This frame will display the official photograph provided by One Rooftop.',
+      photoAttenteTitre: 'One Rooftop · Bonapriso',
+      photoAttenteDesc: 'Architectural study of the table and bar.',
       photoApprochante:
         'Approximate illustration photo: it does not represent this exact dish.',
       fermer: 'Close',
     },
     soirees: {
-      surTitre: 'Floor 04 · Atmosphere & Private Room',
-      titre: 'Evenings, Live Music & Private Events',
+      surTitre: 'Floor 04 · Evenings & Salons',
+      titre: 'Evenings & Gatherings',
       intro:
-        'The atmosphere shifts throughout the night: dinner with live jazz, soul or pop early in the evening, followed by DJ sets later at night, especially on Fridays and Saturdays.',
+        CONFIRME.musiqueLive && CONFIRME.dj
+          ? 'Evening dinner with live music followed by DJ programming.'
+          : CONFIRME.musiqueLive
+            ? 'Evening dinner with live music.'
+            : CONFIRME.dj
+              ? 'Evening DJ programming.'
+              : 'Evening lounge in Bonapriso.',
       blocJacarandaTitre: 'The central bar and illuminated jacaranda',
       blocJacarandaTexte:
-        'Set at the center of the bar, the illuminated jacaranda anchors the space between the indoor room and the open-air terrace.',
-      blocPrivatisationTitre: 'Private room, buyouts and catering',
+        'Set at the center of the bar, the illuminated jacaranda anchors the evening space.',
+      blocPrivatisationTitre: 'Gatherings on request',
       blocPrivatisationTexte:
-        'Private room bookings, space privatization for celebrations and catering services are available on request.',
-      ctaPrivatiser: 'Inquire or book a table',
+        CONFIRME.traiteur && CONFIRME.privatisation
+          ? 'Private space buyouts and catering services available on request.'
+          : CONFIRME.privatisation
+            ? 'Space buyouts for celebrations available on request.'
+            : 'Catering services available on request.',
+      ctaPrivatiser: CONFIRME.privatisation
+        ? 'Request a booking or private event'
+        : 'Request a booking',
       photoTerrasse: 'Rooftop terrace and central bar',
-      photoSalle: 'Air-conditioned room and private space',
+      photoSalle: 'Evening space',
     },
     toit: {
       surTitre: 'Rooftop · Above Bonapriso',
@@ -217,18 +255,22 @@ export const TEXTES_SITE = {
     },
     reservation: {
       titre: 'Request a table',
-      sousTitre: 'La table n’est réservée qu’après confirmation du restaurant.',
+      sousTitre: 'Your table is confirmed only after the restaurant replies.',
       date: 'Date',
       heure: 'Arrival time',
+      heureLibreLabel: 'Preferred time (confirmed by the restaurant)',
+      heureInvalide: 'Enter a valid time in HH:MM format.',
       aucunCreneau: 'No slots available on this date.',
       personnes: 'Party size',
       plusDe12:
         'For groups over 12 guests, please call the restaurant directly at +237 671 03 33 33.',
       nom: 'Full name',
       telephone: 'Phone',
-      remarque: 'Preference (terrace, indoor room, celebration…)',
+      remarque: CONFIRME.salleClimatisee
+        ? 'Preference (terrace, indoor room, celebration…)'
+        : 'Preference (celebration, allergy, seating…)',
       preparer: 'Prepare request',
-      messagePret: 'Votre demande est prête à être envoyée.',
+      messagePret: 'Your request is ready to send.',
       whatsappDesactive:
         'Direct WhatsApp sending is not yet enabled. Copy your message below and call the restaurant directly.',
       tropLong:
@@ -245,7 +287,7 @@ export const TEXTES_SITE = {
       emporter: 'Takeaway',
       livraison: 'Delivery',
       infoLivraison:
-        'Le restaurant confirme par WhatsApp ou par téléphone s’il peut livrer à votre adresse, et les frais éventuels.',
+        'The restaurant will confirm via WhatsApp or phone whether delivery is available to your address and any applicable fee.',
       adresseLabel: 'Delivery address in Douala',
       adressePlaceholder: 'Neighborhood, street, landmark…',
       nomLabel: 'Your name',
@@ -253,9 +295,8 @@ export const TEXTES_SITE = {
       remarqueLabel: 'General note',
       totalPlats: 'Items subtotal',
       preparerCommande: 'Prepare order',
-      commandePrete: 'Votre commande est prête à être envoyée.',
-      mentionValidation:
-        'Cette commande n’est prise en compte qu’après la réponse du restaurant.',
+      commandePrete: 'Your order is ready to send.',
+      mentionValidation: 'This order is confirmed only after the restaurant replies.',
       vider: 'Clear selection',
       retirer: 'Remove',
     },
@@ -263,9 +304,9 @@ export const TEXTES_SITE = {
       titre: 'Privacy & Site Policy',
       points: [
         'No personal data (name, phone number, address) is stored in your browser or sent to any third-party server.',
-        'Only your cart selection (item IDs, quantities, options, notes) is stored locally in your browser for 24 hours.',
+        'When an order cart is active, only your selection (item IDs, quantities, options, notes) is stored locally in your browser for 24 hours.',
         'This site uses no advertising cookies, analytics trackers, or external font servers.',
-        'Messages for orders or table requests are formatted locally so you can send them directly via WhatsApp or phone call.',
+        'Messages for table requests or orders are formatted locally so you can send them directly to the restaurant.',
       ],
     },
     footer: {

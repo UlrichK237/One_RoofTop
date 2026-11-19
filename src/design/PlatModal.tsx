@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { AFFICHER_PANIER } from '../data/confirmations';
 import type { Plat } from '../data/restaurantData';
 import { TEXTES_SITE, type Langue } from '../data/textesSite';
 import {
@@ -10,6 +11,7 @@ import {
 } from '../engine/panier';
 import { obtenirPhotoPlat } from '../engine/photos';
 import { MAX_LEN_REMARQUE, nettoyerTexte } from '../engine/sanitize';
+import { CadrePhotoLieu } from './AmbiancesEtage';
 import { ModalFrame } from './ModalFrame';
 
 export function PlatModal({
@@ -85,53 +87,37 @@ export function PlatModal({
       labelFermer={t.fermer}
     >
       <div className="space-y-5">
-        {/* Emplacement photo prévu (chargée uniquement à l'ouverture si fournie par le restaurant) */}
-        <div className="border border-bronze bg-nuit overflow-hidden">
-          {photo ? (
-            <div className="space-y-2">
-              <img
-                src={photo.src}
-                alt={photo.alt ?? plat.nom}
-                width={photo.width}
-                height={photo.height}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                className="w-full aspect-[4/3] object-cover"
-              />
-              {(photo.approchante || photo.auteur) && (
-                <div className="px-3 pb-2 text-xs text-ivoire-doux space-y-1">
-                  {photo.approchante && <p>{t.photoApprochante}</p>}
-                  {photo.auteur && (
-                    <p>
-                      {photo.auteur}
-                      {photo.licence ? ` · ${photo.licence}` : ''}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="aspect-[4/3] flex flex-col items-center justify-center p-6 text-center relative">
-              <svg
-                viewBox="0 0 240 160"
-                className="w-40 h-28 mb-3 opacity-70"
-                fill="none"
-                aria-hidden="true"
-              >
-                <rect x="8" y="8" width="224" height="144" stroke="#96650B" strokeWidth="1" />
-                <line x1="8" y1="54" x2="232" y2="54" stroke="#96650B" strokeWidth="1" />
-                <line x1="88" y1="8" x2="88" y2="152" stroke="#CA8C3A" strokeWidth="1" />
-                <line x1="168" y1="54" x2="168" y2="152" stroke="#96650B" strokeWidth="1" />
-              </svg>
-              <p className="font-display text-xs uppercase tracking-[0.18em] text-or">
-                {t.photoAttenteTitre}
-              </p>
-              <p className="font-editorial italic text-base text-ivoire-doux mt-1 max-w-xs">
-                {t.photoAttenteDesc}
-              </p>
-            </div>
-          )}
-        </div>
+        {photo ? (
+          <div className="border border-bronze bg-nuit overflow-hidden space-y-2">
+            <img
+              src={photo.src}
+              alt={photo.alt ?? plat.nom}
+              width={photo.width}
+              height={photo.height}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              className="w-full aspect-[4/3] object-cover"
+            />
+            {(photo.approchante || photo.auteur) && (
+              <div className="px-3 pb-2 text-xs text-ivoire-doux space-y-1">
+                {photo.approchante && <p>{t.photoApprochante}</p>}
+                {photo.auteur && (
+                  <p>
+                    {photo.auteur}
+                    {photo.licence ? ` · ${photo.licence}` : ''}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <CadrePhotoLieu
+            emplacement={`plat-${categorie}`}
+            sceneRepli="cuisine"
+            titre={t.photoAttenteTitre}
+            sousTitre={t.photoAttenteDesc}
+          />
+        )}
 
         {/* Description et tarif */}
         <div className="space-y-2 border-b border-bronze pb-4">
@@ -190,69 +176,76 @@ export function PlatModal({
           </div>
         )}
 
-        {/* Remarque */}
-        <div className="space-y-2">
-          <label
-            htmlFor="plat-remarque"
-            className="block font-display text-xs uppercase tracking-[0.14em] text-ivoire"
-          >
-            {mode === 'remarque_obligatoire' ? `${t.remarqueLabel} *` : t.remarqueLabel}
-          </label>
-          <input
-            id="plat-remarque"
-            type="text"
-            maxLength={MAX_LEN_REMARQUE}
-            value={remarque}
-            onChange={(e) => {
-              setErreur('');
-              setRemarque(e.target.value);
-            }}
-            placeholder={t.remarquePlaceholder}
-            className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire placeholder:text-ivoire-doux"
-          />
-        </div>
+        {AFFICHER_PANIER && (
+          <>
+            <div className="space-y-2">
+              <label
+                htmlFor="plat-remarque"
+                className="block font-display text-xs uppercase tracking-[0.14em] text-ivoire"
+              >
+                {mode === 'remarque_obligatoire' ? `${t.remarqueLabel} *` : t.remarqueLabel}
+              </label>
+              <div className="champ-ligne-or">
+                <input
+                  id="plat-remarque"
+                  type="text"
+                  maxLength={MAX_LEN_REMARQUE}
+                  value={remarque}
+                  onChange={(e) => {
+                    setErreur('');
+                    setRemarque(e.target.value);
+                  }}
+                  placeholder={t.remarquePlaceholder}
+                  className="focus-marque w-full bg-nuit border border-bronze px-3 py-2.5 text-sm text-ivoire placeholder:text-ivoire-doux"
+                />
+              </div>
+            </div>
 
-        {erreur && (
-          <p role="alert" className="text-xs text-or font-display uppercase tracking-[0.1em]">
-            {erreur}
-          </p>
+            {erreur && (
+              <p
+                role="alert"
+                className="message-erreur-anim text-xs text-or font-display uppercase tracking-[0.1em]"
+              >
+                {erreur}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-bronze">
+              <div className="flex items-center border border-bronze bg-nuit">
+                <button
+                  type="button"
+                  onClick={() => setQuantite((q) => Math.max(1, q - 1))}
+                  aria-label="Diminuer"
+                  className="focus-marque p-2.5 text-ivoire hover:text-or cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <Minus className="w-4 h-4" aria-hidden="true" />
+                </button>
+                <span
+                  className="px-4 font-display text-sm tabular-nums text-ivoire"
+                  aria-label={t.quantite}
+                >
+                  {quantite}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantite((q) => Math.min(MAX_QTE_PAR_LIGNE, q + 1))}
+                  aria-label="Augmenter"
+                  className="focus-marque p-2.5 text-ivoire hover:text-or cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <Plus className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={validerAjout}
+                className="focus-marque cta-magnetique bg-or text-nuit px-5 py-3 text-xs uppercase tracking-[0.14em] font-medium cursor-pointer flex-1 sm:flex-initial tabular-nums min-h-[44px]"
+              >
+                {t.ajouter} · {formaterPrixFCFA(total)}
+              </button>
+            </div>
+          </>
         )}
-
-        {/* Quantité + Ajouter */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-bronze">
-          <div className="flex items-center border border-bronze bg-nuit">
-            <button
-              type="button"
-              onClick={() => setQuantite((q) => Math.max(1, q - 1))}
-              aria-label="Diminuer"
-              className="focus-marque p-2.5 text-ivoire hover:text-or cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
-            >
-              <Minus className="w-4 h-4" aria-hidden="true" />
-            </button>
-            <span
-              className="px-4 font-display text-sm tabular-nums text-ivoire"
-              aria-label={t.quantite}
-            >
-              {quantite}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQuantite((q) => Math.min(MAX_QTE_PAR_LIGNE, q + 1))}
-              aria-label="Augmenter"
-              className="focus-marque p-2.5 text-ivoire hover:text-or cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
-            >
-              <Plus className="w-4 h-4" aria-hidden="true" />
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={validerAjout}
-            className="focus-marque bg-or text-nuit px-5 py-3 text-xs uppercase tracking-[0.14em] font-medium cursor-pointer flex-1 sm:flex-initial tabular-nums min-h-[44px]"
-          >
-            {t.ajouter} · {formaterPrixFCFA(total)}
-          </button>
-        </div>
       </div>
     </ModalFrame>
   );

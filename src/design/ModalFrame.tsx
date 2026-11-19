@@ -89,8 +89,8 @@ export function ModalFrame({
         aria-labelledby={titreId}
         className={
           variante === 'tiroir'
-            ? 'w-full max-w-lg bg-surface border-l border-bronze text-ivoire flex flex-col h-full overflow-hidden'
-            : 'm-auto w-[calc(100%-2rem)] max-w-xl max-h-[90vh] bg-surface border border-bronze text-ivoire flex flex-col overflow-hidden'
+            ? 'fenetre-modale-panneau w-full max-w-lg bg-surface border-l border-bronze text-ivoire flex flex-col h-full overflow-hidden'
+            : 'fenetre-modale-panneau m-auto w-[calc(100%-2rem)] max-w-xl max-h-[90vh] bg-surface border border-bronze text-ivoire flex flex-col overflow-hidden'
         }
       >
         <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-bronze">

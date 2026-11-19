@@ -172,6 +172,46 @@ resultat(
   depsInutilisees.join(', '),
 );
 
+// 8. Absence de public/assets/aistudio, de fichiers .txt indésirables et de photo_*.jpg dans public/ et dist/
+function listerTousFichiers(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...listerTousFichiers(full));
+    } else {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+const aistudioExiste =
+  fs.existsSync(path.join(ROOT, 'public/assets/aistudio')) ||
+  fs.existsSync(path.join(ROOT, 'dist/assets/aistudio'));
+const fichiersPublicEtDist = [
+  ...listerTousFichiers(path.join(ROOT, 'public')),
+  ...listerTousFichiers(DIST_DIR),
+];
+const intrus = [];
+if (aistudioExiste) intrus.push('assets/aistudio');
+for (const file of fichiersPublicEtDist) {
+  const rel = path.relative(ROOT, file).replace(/\\/g, '/');
+  const base = path.basename(file);
+  if (/\.txt$/i.test(base) && rel !== 'public/robots.txt' && rel !== 'dist/robots.txt') {
+    intrus.push(rel);
+  }
+  if (/^photo_.*\.jpg$/i.test(base)) {
+    intrus.push(rel);
+  }
+}
+resultat(
+  intrus.length === 0,
+  'Aucun fichier brut aistudio, .txt (hors robots.txt) ni photo_*.jpg dans public/ ni dist/',
+  intrus.join(', '),
+);
+
 if (aErreur) {
   process.exit(1);
 }
